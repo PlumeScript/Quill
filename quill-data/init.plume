@@ -1,0 +1,86 @@
+// This file is part of Quill - the Plume🪶 package manager
+// v0.1.0
+
+// Copyright © Erwan Barbedor
+// Licensed under the MIT License — see LICENSE for details.
+
+use #future(all)
+let lib = $lua.require(./lib)
+
+let param ...args
+let param plumePath
+let param env
+
+let workingDir = $os.Path($(env or os.getEnv("PLUME_DEFAULT_ENV") or plumePath)lib)
+
+let defaultPackage = do
+plumeVersion\: $plume.VERSION\n
+raw[
+name: // package name used for import
+author:
+description:
+version: 1.0.0
+source: // url of a .git repo
+include: do // files to download from repo
+	- **\/*.plume
+	- **\/*.🪶
+	- readme.md
+	- LICENSE
+	- logo.svg
+end
+exclude: do // files to ignore ; higher priority than include
+	- **/.git\/**
+	- **/.gitignore
+	- **/.gitattribute
+	- **/.env
+end
+required: do
+	// packageName: do
+	// 	version: >1.0.0
+	// 	source:
+	// end
+end
+]end
+end
+
+let help = do
+	Quill - the Plume🪶 package manager
+	\n
+	
+	\nquill init [--f]
+	\n\tCreate a new `package.plume`. Use `--f` to overwrite existing file.
+
+	\nquill help
+	\n\tShow this message and exits.
+end
+
+let commands = do
+	init: macro(?f)
+		let path = $os.Path(package.plume)
+		if path.exists() and not f
+			Error\: a `package.plume` file already exists. Use `quill init --f` to ignore it.
+		else
+			$path.write($defaultPackage)
+			`package.plume` created.
+		end
+	end
+
+	help: macro()
+		$help
+	end
+
+	add: macro(name)
+		let tags = $ lib.getTags(name)
+	end
+end
+
+let commandName = $ Table.remove(args, 1)
+let command     = $commands[commandName]?
+
+if command
+	$command(...args)
+elseif commandName
+	Error\: Unknown $commandName.
+else
+	$commands.help()
+end

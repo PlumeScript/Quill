@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+plume_path="$(command -v plume 2>/dev/null || true)"
+plume_dir="$(dirname "$plume_path")"
+
+plume -i "${script_dir}/quill-data/init.plume" \
+      --future-string \
+      --params "$@" \
+      --plumePath="$plume_dir"

@@ -5,6 +5,11 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 plume_path="$(command -v plume 2>/dev/null || true)"
 plume_dir="$(dirname "$plume_path")"
 
+if ! command -v git >/dev/null 2>&1; then
+    echo "Quill requires git. Install git and add it to your PATH." >&2
+    exit 1
+fi
+
 plume -i "${script_dir}/quill-data/init.plume" \
       --future-string \
       --params "$@" \

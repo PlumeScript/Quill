@@ -5,7 +5,7 @@
 // Licensed under the MIT License — see LICENSE for details.
 
 use #future(all)
-let lib = $lua.require(./lib)
+let git = $import(git)
 
 let param ...args
 let param plumePath
@@ -21,19 +21,6 @@ author:
 description:
 version: 1.0.0
 source: // url of a .git repo
-include: do // files to download from repo
-	- **\/*.plume
-	- **\/*.🪶
-	- readme.md
-	- LICENSE
-	- logo.svg
-end
-exclude: do // files to ignore ; higher priority than include
-	- **/.git\/**
-	- **/.gitignore
-	- **/.gitattribute
-	- **/.env
-end
 required: do
 	// packageName: do
 	// 	version: >1.0.0
@@ -70,7 +57,7 @@ let commands = do
 	end
 
 	add: macro(name)
-		let tags = $ lib.getTags(name)
+		let tags = $ git.getTags(name)
 	end
 end
 

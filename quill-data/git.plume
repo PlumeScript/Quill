@@ -1,3 +1,7 @@
+// This file is part of Quill - the Plume🪶 package manager
+
+// Copyright © Erwan Barbedor
+// Licensed under the MIT License — see LICENSE for details.
 use #future(all)
 
 // Execute a command, use a lua workaround to get the error code

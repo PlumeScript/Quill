@@ -16,23 +16,6 @@ let envPath = $os.Path($(env or os.getEnv("PLUME_DEFAULT_ENV") or plumePath.."li
 let envConfigPath = $(envPath / "env.plume")
 let quillConfigPath = $(envPath / ".quill")
 
-let defaultPackage = do
-plumeVersion\: $plume.VERSION\n
-raw[
-name: // package name used for import
-author:
-description:
-version: 1.0.0
-source: // url of a .git repo
-required: do
-	// packageName: do
-	// 	version: >1.0.0
-	// 	source:
-	// end
-end
-]end
-end
-
 let help = do
 	Quill - the Plume🪶 package manager
 	\n
@@ -50,7 +33,7 @@ let commands = do
 		if path.exists() and not f
 			Error\: a `package.plume` file already exists. Use `quill init --f` to ignore it.
 		else
-			$path.write($defaultPackage)
+			$path.write($config.defaultPackage)
 			`package.plume` created.
 		end
 	end

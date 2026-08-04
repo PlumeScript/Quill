@@ -22,3 +22,20 @@ loadEnv: macro(path)
 
 	$tryEnv.result
 end
+
+defaultPackage: do
+plumeVersion\: $plume.VERSION\n
+raw[
+name: // package name used for import
+author:
+description:
+version: 1.0.0
+source: // url of a .git repo
+required: do
+	// packageName: do
+	// 	version: >1.0.0
+	// 	source:
+	// end
+end
+]end
+end

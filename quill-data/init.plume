@@ -17,6 +17,8 @@ let envPath = $os.Path($(env or os.getEnv("PLUME_DEFAULT_ENV") or plumePath.."li
 let envConfigPath = $(envPath / "env.plume")
 let quillConfigPath = $(envPath / ".quill")
 
+let runningPackages = $Table()
+
 let commands = do
 	init: macro(?f)
 		let path = $os.Path(package.plume)
@@ -32,7 +34,13 @@ let commands = do
 		$config.help
 	end
 
-	add: macro(name, versionSelector:, env:)
+	add: macro(name, versionSelector:, env:, first: $true)
+		if runningPackages[name]?
+			raise Infinite loop detected. Abort.
+		end
+
+		set runningPackages[name] = $true
+
 		set env  = $ env or config.loadEnv(envConfigPath)
 		let url  = $ utils.resolveName(name, envPath)
 		let tags = $ git.getTags(url)
@@ -43,7 +51,16 @@ let commands = do
 		let package = $ git.get(url, sha, envPath)
 		set package.sha = $sha
 		set env.packages[package.name] = $package
-		$ envConfigPath.write(repr(env, ?pretty))
+		
+		for _, infos in items(package.required or Table())
+			$ commands.add(infos.source, env: env, versionSelector: infos.version, first: false)
+		end
+
+		if first
+			$ envConfigPath.write(repr(env, ?pretty))
+		end
+
+		run $ Table.removeKey(runningPackages, name)
 	end
 end
 

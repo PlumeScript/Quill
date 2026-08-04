@@ -7,6 +7,8 @@ use #future(all)
 resolveName: macro(name, envPath)
 	if name.find("^https://", ?rich)
 		$name
+	elseif name.find("^.-%.", ?rich)
+		https\:\//$name
 	else
 		let index = $(envPath / ".quill" / ".index" / "index.plume").import()
 		if index[name]?

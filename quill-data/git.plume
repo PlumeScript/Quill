@@ -6,6 +6,7 @@ use #future(all)
 
 // Execute a command, use a lua workaround to get the error code
 macro exec(String cmd)
+	run $print(Executing $cmd)
 	let const execution = @lua.eval
 		local cmd = [[$cmd]]\n
 		raw[
@@ -33,6 +34,7 @@ end
 
 // get the list of tags of a repo
 ref getTags: macro (String url)
+	run $print(Getting tags for $url)
 	let const rq = $exec(git ls-remote --tags "$url")
 	for line in rq.lines()
 		let value, _, key = $line.partition(\trefs/tags/)
@@ -42,6 +44,7 @@ ref getTags: macro (String url)
 end
 
 get: macro(String url, String sha, env)
+	run $print(Cloning $url at $sha)
 	let r = $Random()
 	let tempPath    = $(env / ".quill" / ".tmp" / r(1000000,9999999))
 	let packagePath = $(tempPath/"package.plume")
@@ -59,6 +62,7 @@ get: macro(String url, String sha, env)
 
 	let package   = $packagePath.import()
 	let name      = $package.name
+	run $print(Installing $name)
 	let finalPath = $(env / name)
 
 	run do
@@ -74,6 +78,7 @@ end
 
 getIndex: macro(envPath)
 	let indexPath = $(envPath.getParent() / ".quill" / ".index")
+	run $print(Updating index at $indexPath)
 	if not indexPath.exists()
 		$exec(git init $indexPath)
 		$exec(git   -C $indexPath remote add origin $("https://github.com/PlumeScript/index"))

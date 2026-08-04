@@ -5,6 +5,7 @@
 use #future(all)
 
 resolveName: macro(name, envPath)
+	run $print(Resolving $name)
 	if name.find("^https://", ?rich)
 		$name
 	elseif name.find("^.-%.", ?rich)

@@ -42,12 +42,15 @@ let commands = do
 		set runningPackages[name] = $true
 
 		set env  = $ env or config.loadEnv(envConfigPath)
+		run $print(Resolving $name)
 		let url  = $ utils.resolveName(name, envPath)
+		run $print(Resolved $name to $url)
 		let tags = $ git.getTags(url)
 
 		// let version, sha  = $ findMatchingVersion(tags, versionSelector)
 		let version, sha = $ Table.entry(tags, Table.count(tags, ?named))
 
+		run $print(Installing $name version $version)
 		let package = $ git.get(url, sha, envPath)
 		set package.sha = $sha
 		set env.packages[package.name] = $package

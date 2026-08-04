@@ -3,7 +3,7 @@ use #future(all)
 // Execute a command, use a lua workaround to get the error code
 macro exec(cmd)
 	let const execution = @lua.eval
-		\0local cmd = [[$cmd]]\n
+		local cmd = [[$cmd]]\n
 		raw[
 			local handle = io.popen(cmd .. " 2>&1")
 			if not handle then
@@ -36,5 +36,3 @@ ref getTags: macro (String url)
 		$key: $value
 	end
 end
-
-run $print($getTags($("https://github.com/PlumeScript/plume")))

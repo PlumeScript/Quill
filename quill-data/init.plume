@@ -5,13 +5,15 @@
 // Licensed under the MIT License — see LICENSE for details.
 
 use #future(all)
-let git = $import(git)
-
 let param ...args
 let param plumePath
 let param env
 
-let workingDir = $os.Path($(env or os.getEnv("PLUME_DEFAULT_ENV") or plumePath)lib)
+let git    = $import(./git)
+let config = $import(./config)
+
+let envPath = $os.Path($(env or os.getEnv("PLUME_DEFAULT_ENV") or plumePath.."lib"))
+let envConfigPath = $(envPath / "env.plume")
 
 let defaultPackage = do
 plumeVersion\: $plume.VERSION\n
@@ -57,6 +59,7 @@ let commands = do
 	end
 
 	add: macro(name)
+		let env  = $ config.loadEnv(envConfigPath)
 		let tags = $ git.getTags(name)
 	end
 end

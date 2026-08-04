@@ -1,0 +1,19 @@
+use #future(all)
+
+loadEnv: macro(path)
+	if not path.exists()
+		run @path.write()
+			packages\: \$Table()
+		end
+	end
+
+	let const pathlib =$ String(path).replace(".plume", "")
+	let const tryEnv = $ attempt(import, pathlib)
+	
+	
+	if not tryEnv.success
+		raise cannot load environnement: $tryEnv.result
+	end
+
+	// $tryEnv.result
+end

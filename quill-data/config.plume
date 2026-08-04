@@ -20,5 +20,5 @@ loadEnv: macro(path)
 		raise cannot load environnement: $tryEnv.result
 	end
 
-	// $tryEnv.result
+	$tryEnv.result
 end

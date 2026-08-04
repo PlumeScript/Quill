@@ -1,7 +1,7 @@
 use #future(all)
 
 // Execute a command, use a lua workaround to get the error code
-macro exec(cmd)
+macro exec(String cmd)
 	let const execution = @lua.eval
 		local cmd = [[$cmd]]\n
 		raw[
@@ -12,9 +12,9 @@ macro exec(cmd)
 			local out = handle:read("*a")
 			local ok = handle:close()
 			if not ok then
-				return "1\n"..out
+				return "1\n "..out
 			end
-			return "0\n"..out
+			return "0\n "..out
 		]end
 	end
 
@@ -35,4 +35,35 @@ ref getTags: macro (String url)
 		set key = $key.replace(^{},)
 		$key: $value
 	end
+end
+
+get: macro(String url, String sha, env)
+	let r = $Random()
+	let tempPath    = $(env / ".quill" / ".tmp" / r(1000000,9999999))
+	let packagePath = $(tempPath/"package.plume")
+	let archivePath = $(tempPath/"out.tar")
+
+	run do
+		if tempPath.exists()
+			$tempPath.remove()
+		end
+		$exec(git init $tempPath)
+		$exec(git   -C $tempPath remote add origin $url)
+		$exec(git   -C $tempPath fetch --depth 1 origin $sha)
+		$exec(git   -C $tempPath show FETCH_HEAD:package.plume > $packagePath)
+	end
+
+	let package   = $packagePath.import()
+	let name      = $package.name
+	let finalPath = $(env / name)
+
+	run do
+		if not finalPath.exists()
+			$finalPath.mkdir()
+		end
+		$exec(git -C $tempPath archive --format=tar FETCH_HEAD -o $archivePath)
+		$exec(tar -xf $archivePath -C $finalPath)
+	end
+	
+	$package
 end

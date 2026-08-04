@@ -59,9 +59,19 @@ let commands = do
 		$help
 	end
 
-	add: macro(name)
+	add: macro(name, versionSelector:)
+		// let url = $ resolveName(name)
+		let url  = $ name
 		let env  = $ config.loadEnv(envConfigPath)
-		let tags = $ git.getTags(name)
+		let tags = $ git.getTags(url)
+
+		// let version, sha  = $ findMatchingVersion(tags, versionSelector)
+		let version, sha = $ Table.entry(tags, Table.count(tags, ?named))
+
+		let package = $ git.get(url, sha, envPath)
+		set package.sha = $sha
+		set env.packages[package.name] = $package
+		$ envConfigPath.write(repr(env, ?pretty))
 	end
 end
 

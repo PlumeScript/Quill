@@ -39,3 +39,14 @@ required: do
 end
 ]end
 end
+
+help: do
+	Quill - the Plume🪶 package manager
+	\n
+	
+	\nquill init [--f]
+	\n\tCreate a new `package.plume`. Use `--f` to overwrite existing file.
+
+	\nquill help
+	\n\tShow this message and exits.
+end

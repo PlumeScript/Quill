@@ -16,17 +16,6 @@ let envPath = $os.Path($(env or os.getEnv("PLUME_DEFAULT_ENV") or plumePath.."li
 let envConfigPath = $(envPath / "env.plume")
 let quillConfigPath = $(envPath / ".quill")
 
-let help = do
-	Quill - the Plume🪶 package manager
-	\n
-	
-	\nquill init [--f]
-	\n\tCreate a new `package.plume`. Use `--f` to overwrite existing file.
-
-	\nquill help
-	\n\tShow this message and exits.
-end
-
 let commands = do
 	init: macro(?f)
 		let path = $os.Path(package.plume)
@@ -39,7 +28,7 @@ let commands = do
 	end
 
 	help: macro()
-		$help
+		$config.help
 	end
 
 	add: macro(name, versionSelector:)

@@ -1,5 +1,7 @@
 use #future(all)
 
+let git = $import(./git)
+
 loadEnv: macro(path)
 	if not path.exists()
 		run @path.write()
@@ -19,6 +21,8 @@ loadEnv: macro(path)
 	if not tryEnv.success
 		raise cannot load environnement: $tryEnv.result
 	end
+
+	run $git.getIndex($path)
 
 	$tryEnv.result
 end

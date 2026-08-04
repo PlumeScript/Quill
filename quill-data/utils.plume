@@ -1,0 +1,16 @@
+resolveName: macro(name, envPath)
+	if name.find("^https://", ?rich)
+		$name
+	else
+		let index = $(envPath / ".quill" / ".index" / "index.plume").import()
+		if index[name]?
+			let url = $index[name]
+			if not url.find("^https://", ?rich)
+				set url = https\:\//$url
+			end
+			$url
+		else
+			raise Cannot find any package named "$name". Check for typo, or give full repo url.
+		end
+	end
+end

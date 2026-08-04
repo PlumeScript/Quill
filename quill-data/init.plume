@@ -11,6 +11,7 @@ let param env
 
 let git    = $import(./git)
 let config = $import(./config)
+let utils  = $import(./utils)
 
 let envPath = $os.Path($(env or os.getEnv("PLUME_DEFAULT_ENV") or plumePath.."lib"))
 let envConfigPath = $(envPath / "env.plume")
@@ -31,10 +32,9 @@ let commands = do
 		$config.help
 	end
 
-	add: macro(name, versionSelector:)
-		// let url = $ resolveName(name)
-		let url  = $ name
-		let env  = $ config.loadEnv(envConfigPath)
+	add: macro(name, versionSelector:, env:)
+		set env  = $ env or config.loadEnv(envConfigPath)
+		let url  = $ utils.resolveName(name, envPath)
 		let tags = $ git.getTags(url)
 
 		// let version, sha  = $ findMatchingVersion(tags, versionSelector)

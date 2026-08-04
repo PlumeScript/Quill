@@ -67,3 +67,13 @@ get: macro(String url, String sha, env)
 	
 	$package
 end
+
+getIndex: macro(envPath)
+	let indexPath = $(envPath.getParent() / ".quill" / ".index")
+	if not indexPath.exists()
+		$exec(git init $indexPath)
+		$exec(git   -C $indexPath remote add origin $("https://github.com/PlumeScript/index"))
+	end
+	$exec(git   -C $indexPath fetch --depth 1 origin main)
+	$exec(git   -C $indexPath show FETCH_HEAD:index.plume > $(indexPath / "index.plume"))
+end

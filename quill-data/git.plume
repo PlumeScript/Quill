@@ -32,7 +32,7 @@ ref getTags: macro (String url)
 	let const rq = $exec(git ls-remote --tags "$url")
 	for line in rq.lines()
 		let value, _, key = $line.partition(\trefs/tags/)
-		set key = $key.replace(^{},$(""))
+		set key = $key.replace(^{},)
 		$key: $value
 	end
 end

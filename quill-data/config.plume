@@ -7,10 +7,15 @@ loadEnv: macro(path)
 		end
 	end
 
+	let quillConfigPath = $(path.getParent() / ".quill")
+	if not quillConfigPath.exists()
+		run $quillConfigPath.mkdir()
+	end
+
 	let const pathlib =$ String(path).replace(".plume", "")
 	let const tryEnv = $ attempt(import, pathlib)
 	
-	
+
 	if not tryEnv.success
 		raise cannot load environnement: $tryEnv.result
 	end

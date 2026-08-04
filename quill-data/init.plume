@@ -14,6 +14,7 @@ let config = $import(./config)
 
 let envPath = $os.Path($(env or os.getEnv("PLUME_DEFAULT_ENV") or plumePath.."lib"))
 let envConfigPath = $(envPath / "env.plume")
+let quillConfigPath = $(envPath / ".quill")
 
 let defaultPackage = do
 plumeVersion\: $plume.VERSION\n

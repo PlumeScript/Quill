@@ -4,32 +4,40 @@
 // Licensed under the MIT License — see LICENSE for details.
 use #future(all)
 
-let git = $import(./git)
+init: macro(env, plumePath)
+	set self.random = $Random()
+	set self.path = do
+		let main = $ os.Path(env or os.getEnv("PLUME_DEFAULT_ENV") or plumePath.."lib")
+		main:   $ main
+		config: $ main / ".quill"
+		temp:   $ main / ".quill" / "temp"
+		index:  $ main / ".quill" / "index" / "index.plume"
+		env:    $ main / "env.plume"	
+	end
 
-loadEnv: macro(path)
-	run $print(Loading env from $path)
-	if not path.exists()
-		run @path.write()
+	run $print(Loading env from $self.path.main)
+
+	if not self.path.env.exists()
+		@self.path.env.write()
 			packages\: \$Table()
 		end
 	end
 
-	let quillConfigPath = $(path.getParent() / ".quill")
-	if not quillConfigPath.exists()
-		run $quillConfigPath.mkdir()
+	if not self.path.config.exists()
+		$self.path.config.mkdir()
 	end
 
-	let const pathlib =$ String(path).replace(".plume", "")
-	let const tryEnv = $ attempt(import, pathlib)
-	
+	let const tryEnv = $ attempt(self.path.env.import)	
 
 	if not tryEnv.success
 		raise cannot load environnement: $tryEnv.result
 	end
 
-	run $git.getIndex($path)
+	set self.env = $tryEnv.result
+end
 
-	$tryEnv.result
+getTempPath: macro()
+	$ self.path.temp / self.random(1000000,9999999)
 end
 
 defaultPackage: do

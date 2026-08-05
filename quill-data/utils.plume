@@ -3,15 +3,16 @@
 // Copyright © Erwan Barbedor
 // Licensed under the MIT License — see LICENSE for details.
 use #future(all)
+let config = $import(./config)
 
-resolveName: macro(name, envPath)
+resolveName: macro(name)
 	run $print(Resolving $name)
 	if name.find("^https://", ?rich)
 		$name
 	elseif name.find("^.-%.", ?rich)
 		https\:\//$name
 	else
-		let index = $(envPath / ".quill" / ".index" / "index.plume").import()
+		let index = $config.path.index.import()
 		if index[name]?
 			let url = $index[name]
 			if not url.find("^https://", ?rich)

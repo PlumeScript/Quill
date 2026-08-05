@@ -3,6 +3,7 @@
 // Copyright © Erwan Barbedor
 // Licensed under the MIT License — see LICENSE for details.
 use #future(all)
+let config = $import(./config)
 
 // Execute a command, use a lua workaround to get the error code
 macro exec(String cmd)
@@ -45,10 +46,9 @@ end
 
 get: macro(String url, String sha, env)
 	run $print(Cloning $url at $sha)
-	let r = $Random()
-	let tempPath    = $(env / ".quill" / ".tmp" / r(1000000,9999999))
-	let packagePath = $(tempPath/"package.plume")
-	let archivePath = $(tempPath/"out.tar")
+	let tempPath    = $config.getTempPath()
+	let packagePath = $ tempPath / "package.plume"
+	let archivePath = $ tempPath / "out.tar"
 
 	run do
 		if tempPath.exists()
@@ -76,13 +76,13 @@ get: macro(String url, String sha, env)
 	$package
 end
 
-getIndex: macro(envPath)
-	let indexPath = $(envPath.getParent() / ".quill" / ".index")
-	run $print(Updating index at $indexPath)
-	if not indexPath.exists()
-		$exec(git init $indexPath)
-		$exec(git   -C $indexPath remote add origin $("https://github.com/PlumeScript/index"))
+getIndex: macro()
+	let indexDir = $ config.path.index.getParent()
+	run $print(Updating index at $indexDir)
+	if not indexDir.exists()
+		$exec(git init $indexDir)
+		$exec(git   -C $indexDir remote add origin $("https://github.com/PlumeScript/index"))
 	end
-	$exec(git   -C $indexPath fetch --depth 1 origin main)
-	$exec(git   -C $indexPath show FETCH_HEAD:index.plume > $(indexPath / "index.plume"))
+	$exec(git   -C $indexDir fetch --depth 1 origin main)
+	$exec(git   -C $indexDir show FETCH_HEAD:index.plume > $(config.path.index))
 end

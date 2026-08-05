@@ -34,6 +34,14 @@ init: macro(env, plumePath)
 	end
 
 	set self.env = $tryEnv.result
+
+	$self.cleanTemp()
+end
+
+cleanTemp: macro()
+	for child in self.path.temp.getChildren()
+		run $ attempt(child.remove)
+	end
 end
 
 getTempPath: macro()

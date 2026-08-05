@@ -24,3 +24,135 @@ resolveName: macro(name)
 		end
 	end
 end
+
+macro match(tag, versionComparator, versionSelector)
+	if not versionSelector or len(versionSelector)==0
+		return $true
+	end
+
+	set tag             = $ tag.replace("^v",,?rich).split(sep: ".")
+	set versionSelector = $ versionSelector.split(sep: ".")
+
+	for x in tag
+		if not x.isNumber() and x != "x"
+			return $false
+		end
+	end
+
+	if len(tag) > len(versionSelector) and versionComparator == "="
+		return $false
+	end
+
+	if versionComparator == "^"
+		set versionComparator = >=
+		while true
+			if tag[1] != versionSelector[1]
+				return $false
+			end
+			if versionSelector[1] == 0
+				run $ Table.remove(versionSelector, 1)
+				run $ Table.remove(tag, 1)
+			else
+				break
+			end
+		end
+	elseif versionComparator == "~"
+		set versionComparator = >=
+		if tag[1] > versionSelector[1] or (len(tag)>=2 and len(versionSelector)>=2 and tag[2] > versionSelector[2])
+			return $false
+		end
+	end
+
+	let findx
+	for i in seq(max(len(tag), len(versionSelector)))
+		if len(tag) < i
+			run $ Table.append(tag, 0)
+		end
+		if len(versionSelector) < i
+			run if findx
+				$ Table.append(versionSelector, "x")
+			else
+				$ Table.append(versionSelector, 0)
+			end
+		end
+
+		if versionSelector[i] == "x"
+			set findx = $true
+		end
+	end
+
+	for i in seq(len(tag))
+		if versionSelector[i] ==  "x"
+		elseif versionComparator == "="
+			if tag[i] != versionSelector[i] 
+				return $false
+			end
+		elseif versionComparator == ">"
+			if tag[i] < versionSelector[i] or (i==len(tag) and tag[i] == versionSelector[i])
+				return $false
+			elseif tag[i] > versionSelector[i] 
+				break
+			end
+		elseif versionComparator == ">="
+			if tag[i] < versionSelector[i] 
+				return $false
+			elseif tag[i] > versionSelector[i] 
+				break
+			end
+		elseif versionComparator == "<"
+			if tag[i] > versionSelector[i] or (i==len(tag) and tag[i] == versionSelector[i])
+				return $false
+			elseif tag[i] < versionSelector[i] 
+				break
+			end
+		elseif versionComparator == "<="
+			if tag[i] > versionSelector[i]
+				return $false
+			elseif tag[i] < versionSelector[i] 
+				break
+			end
+		end
+	end
+
+	return $true
+end
+
+let const supportedComparator = (=, <, >, <=, >=, ~, ^)
+
+// Supporterd
+ref findMatchingVersions: macro(tags, versionSelector)
+	set versionSelector   = $ versionSelector.replace("^v",,?rich)
+	let versionComparator = $ versionSelector.find("^[^0-9]+", ?rich)
+	if not versionComparator
+		set versionComparator = =
+	else
+		set versionSelector   = $ versionSelector.sub(len(versionComparator)+1, -1)
+	end
+
+	if not Table.find(supportedComparator, versionComparator)
+		raise Error\: unsuported selector "$versionComparator"
+	end
+
+	let result = for tag, sha in items(tags)
+		if match(tag, versionComparator, versionSelector)
+			- ($tag, $sha)
+		end
+	end
+
+	run @Table.sort($result)
+		compare: macro(v1, v2)
+			let tv1 = $v1[1].replace(^v,,?rich).split(sep: .)
+			let tv2 = $v2[1].replace(^v,,?rich).split(sep: .)
+
+			for i in seq(min(len(tv1), len(tv2)))
+				if tv1[i] > tv2[i]
+					return $true
+				elseif tv1[i] < tv2[i]
+					return $false
+				end
+			end
+		end
+	end
+
+	return $result
+end

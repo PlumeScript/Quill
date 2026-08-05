@@ -44,8 +44,11 @@ let commands = do
 		$print(Resolved $name to $url)
 		let tags = $ git.getTags(url)
 
-		// let version, sha  = $ findMatchingVersion(tags, versionSelector)
-		let version, sha = $ Table.entry(tags, Table.count(tags, ?named))
+		let versions  = $ utils.findMatchingVersions(tags, versionSelector)
+		if len(versions) == 0
+			raise Cannot find version of '$name' that satisfies '$versionSelector'.
+		end
+		let version, sha = $versions[1]
 
 		$print(Installing $name version $version)
 		let package = $ git.get(url, sha, config.path.main)
